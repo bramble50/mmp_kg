@@ -3,6 +3,7 @@
 Holds all key chembl queries
 """
 import logging
+import sqlalchemy as sql
 from mmp_kg import config
 from mmp_kg.connectors.base_con import ChemDb
 

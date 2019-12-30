@@ -9,3 +9,7 @@ temp_dir = "."
 
 # Where should the mmpdb sqlite db be stored?
 mmpdb_database = "/Users/matthew/desktop/database.mmpdb"
+
+# Neo4J path - the directory where your neo4j installation is located 
+#(if you don't have a neo4j installation set as "None")
+path_to_neo4j = "/Users/matthew/downloads/neo4j-community-3.5.14/"

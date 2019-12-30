@@ -7,6 +7,7 @@ import logging
 import os
 from mmp_kg import config
 from mmp_kg.connectors.chembl_sql import ChemSqlDb
+from subprocess import Popen
 
 def run_smiles_fragment(assay_data):
     """
@@ -59,6 +60,6 @@ def run_mmpdb(assay_data, fragment_file):
     
     return stdout, stderr
 
-def export_mmpkg_files(dataframes, names):
+def export_mmpkg_files(output_dir, dataframes, names):
     for dataframe, name in zip(dataframes, names):
-    dataframe.to_csv('{1}/MMPKG/{0}'.format(name, dir_path), index=False)
+    dataframe.to_csv('{1}/MMPKG/{0}'.format(name, output_dir), index=False)
