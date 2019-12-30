@@ -28,7 +28,7 @@ __license__ = "mit"
 _logger = logging.getLogger(__name__)
 
 
-def fib(n):
+def runner(n):
     """Fibonacci example function
 
     Args:
@@ -37,10 +37,17 @@ def fib(n):
     Returns:
       int: n-th Fibonacci number
     """
-    assert n > 0
-    a, b = 1, 1
-    for i in range(n-1):
-        a, b = b, a+b
+    
+    assay_pivot = pd.DataFrame(assay_data.pivot_table(index='molregno', 
+                                                      values='standard_value', 
+                                                      columns='assay_concat', 
+                                                      fill_value='*'
+                                                     ).to_records())
+    assay_pivot.rename(columns={'molregno':'ID'}, inplace=True)
+    smiles = assay_data[['canonical_smiles','molregno']].drop_duplicates(['molregno'])
+    smiles.to_csv('{0}/smiles.csv'.format(dir_path), header=False, index=False)
+    assay_pivot.to_csv('{0}/properties.csv'.format(dir_path), sep='\t', index=False)
+    
     return a
 
 
