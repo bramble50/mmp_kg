@@ -7,7 +7,7 @@ import logging
 import os
 import docker
 from mmp_kg import config
-from subprocess import Popen
+from subprocess import Popen, PIPE
     
 def build_neo4j_image():
     """builds a neo4j docker image running locally"""
@@ -24,22 +24,41 @@ def build_neo4j_image():
                       detach=True,
                       )
     
-def create_database_locally_dep(path_to_neo4j=config.path_to_neo4j, database_file, nodes, edges):
+def create_database_locally_dep(database_file, node_edge_list_dict, path_to_neo4j=None):
+    """
+    node_edge_list_dict should be of the type e.g. [{'type':'nodes', 
+                                                'label':"Compound", 
+                                                'file':"get_compound_nodes.csv"
+                                                },
+                                                {'type':'nodes', 
+                                                 'label':'Fragment',
+                                                 'file':"get_fragment_nodes.csv"}
+                                                ]
+    """
+    database_file = os.path.join(config.temp_dir, database_file)
+    if path_to_neo4j == None:
+        path_to_neo4j=config.path_to_neo4j
+    else:
+        path_to_neo4j
     """Using the depreciated neo4j import tool to create the graph.db file"""
     neo4j_tool = os.path.join(path_to_neo4j, 'bin/neo4j-import')
-    process = Popen([neo4j_tool, 
+    process_list = [neo4j_tool, 
                      'import', 
                      '--into',
                      database_file,
                      '--id-type',
-                     'string',
-                     '--nodes:Compound', compound_node_file,
-                     '--nodes:Fragment', fragment_node_file,
-                     '--relationships:IS_MMP_OF', c_c_relationship_file,
-                     '--relationships:IS_FRAGMENT_OF', c_f_relationship_file,
-                     '--relatoinships:IS_FRAGMENT_MMP_OF', f_f_relationship_file,
-                    ], stdout=PIPE, stderr=PIPE)
+                     'string']
+    
+    for ne in node_edge_list_dict:
+            ne_type = ne['type']
+            ne_label = ne['label']
+            ne_file = ne['name']
+            process_list.append(f'--{ne_type}:{ne_label}')
+            process_list.append(f'{config.temp_dir}/{ne_file}.csv')
+    print(process_list)
+    process = Popen(process_list, stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
+    return stdout, stderr
           
     
 def create_database_locally(path_to_neo4j=config.path_to_neo4j):

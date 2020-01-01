@@ -4,12 +4,14 @@ Holds all key chembl queries
 """
 import logging
 import sqlalchemy as sql
+import pandas as pd
 from mmp_kg import config
 from mmp_kg.connectors.base_con import ChemDb
 
 class ChemSqlDb(ChemDb):
     def __init__(self):
         self.db_path = config.chembl_sqlite_db
+        self.name = self.source_name()
 
     @staticmethod
     def source_name():
@@ -23,9 +25,8 @@ class ChemSqlDb(ChemDb):
     def make_query(self, template: str, **kwargs):
         sql = query_template_dict[template](**kwargs)
     
-        connection = self.get_connection()
-        with connection as conn:
-            df = pd.read_sql_query(sql, conn)
+        conn = self.get_connection()
+        df = pd.read_sql_query(sql, conn)
 
         # Add details of query to the dataframe
         query_params = kwargs
@@ -37,6 +38,11 @@ class ChemSqlDb(ChemDb):
         logging.info(f'{len(df)}')
 
         return df
+    
+    @staticmethod
+    def get_available_query_templates():
+        return list(query_template_dict.keys())
+
 
 def return_identity(x):
     return x
@@ -68,6 +74,6 @@ def get_assay_compounds(assay_id_list):
 
 query_template_dict = {
     'adme_assays_for_docid': lambda doc_id: get_adme_assays_for_docid(doc_id),
-    'get_assay_compounds_from_assay_ids': lambda assay_id_list: get_assay_compounds(assay_id_list)
+    'get_assay_compounds_from_assay_ids': lambda assay_id_list: get_assay_compounds(assay_id_list),
     'custom_query': lambda sql: return_identity(sql),
 }

@@ -6,8 +6,8 @@ import logging
 
 import os
 from mmp_kg import config
-from mmp_kg.connectors.chembl_sql import ChemSqlDb
-from subprocess import Popen
+from mmp_kg.connectors import get_dbase
+from subprocess import Popen, PIPE
 
 def run_smiles_fragment(assay_data):
     """
@@ -34,7 +34,7 @@ def run_smiles_fragment(assay_data):
     
     return stdout, stderr
 
-def run_mmpdb(assay_data, fragment_file):
+def run_mmpdb(assay_data):
     fragment_file = os.path.join(config.temp_dir, "/smiles.fragment")
     properties_file = os.path.join(config.temp_dir, "/properties.csv")
     database_output = config.mmpdb_database
@@ -60,6 +60,12 @@ def run_mmpdb(assay_data, fragment_file):
     
     return stdout, stderr
 
-def export_mmpkg_files(output_dir, dataframes, names):
-    for dataframe, name in zip(dataframes, names):
-    dataframe.to_csv('{1}/MMPKG/{0}'.format(name, output_dir), index=False)
+def get_export_mmpkg_files(node_edge_list_dict=config.node_edge_list_dict):
+    
+    mmpdb = get_dbase('mmpdb')
+    node_edge_list = [d['name'] for d in node_edge_list_dict]
+    
+    for ne in node_edge_list:
+        logging.info(f'getting {ne}...')
+        dataframe = mmpdb.make_query(template=ne)
+        dataframe.to_csv(f'{config.temp_dir}/{ne}.csv', index=False)
