@@ -7,7 +7,7 @@ import logging
 import os
 import docker
 from mmp_kg import config
-from subprocess import Popen, PIPE
+from mmp_kg.utils.other_utils import run_and_log_process
     
 def build_neo4j_image():
     """builds a neo4j docker image running locally"""
@@ -55,20 +55,20 @@ def create_database_locally_dep(database_file, node_edge_list_dict, path_to_neo4
             ne_file = ne['name']
             process_list.append(f'--{ne_type}:{ne_label}')
             process_list.append(f'{config.temp_dir}/{ne_file}.csv')
-    print(process_list)
-    process = Popen(process_list, stdout=PIPE, stderr=PIPE)
-    stdout, stderr = process.communicate()
-    return stdout, stderr
+
+    rc = run_and_log_process(process_list)
           
+    return rc
     
 def create_database_locally(path_to_neo4j=config.path_to_neo4j):
     """Using the new neo4j CLI tool to import and create the graph.db file"""
     neo4j_tool = os.path.join(path_to_neo4j, 'bin/neo4j-admin')
-    process = Popen([neo4j_tool, 
+    process_list = [neo4j_tool, 
                      'import', 
                      '--nodes',
                      ###TO FINISH
-                    ], stdout=PIPE, stderr=PIPE)
-    stdout, stderr = process.communicate()
+                    ]
     
-    return stdout, stderr
+    rc = run_and_log_process(process_list)
+          
+    return rc

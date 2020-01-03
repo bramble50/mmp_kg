@@ -35,7 +35,7 @@ class ChemSqlDb(ChemDb):
         df['source'] = self.name
 
         # Log
-        logging.info(f'{len(df)}')
+        logging.info(f'Found {len(df)} records for {template}')
 
         return df
     
@@ -57,7 +57,6 @@ def get_adme_assays_for_docid(doc_id):
     return query
 
 def get_assay_compounds(assay_id_list):
-    '''get all compounds for a list of assay ids'''
     assay_ids = tuple(assay_id_list)
     ''' get all compounds for a list of assay ids'''
     query = f'''SELECT cs.molregno, cs.canonical_smiles, act.standard_relation, 

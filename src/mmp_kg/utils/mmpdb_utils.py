@@ -7,36 +7,41 @@ import logging
 import os
 from mmp_kg import config
 from mmp_kg.connectors import get_dbase
-from subprocess import Popen, PIPE
+from mmp_kg.utils.other_utils import run_and_log_process
+import pandas as pd
+
+from io import StringIO
 
 def run_smiles_fragment(assay_data):
     """
     """
-    smiles_file = os.path.join(config.temp_dir, "/smiles.csv")
-    fragment_file = os.path.join(config.temp_dir, "/smiles.fragment")
+    smiles_file = os.path.join(config.temp_dir, "smiles.csv")
+    fragment_file = os.path.join(config.temp_dir, "smiles.fragment")
     cpu_cores = config.cpu_cores
     #Drop duplicates
     smiles = assay_data[['canonical_smiles','molregno']].drop_duplicates(['molregno'])
     #Write to CSV
-    smiles.to_csv(f'{temp_dir}/smiles.csv', header=False, index=False)
+    smiles.to_csv(smiles_file, header=False, index=False)
     
-    process = Popen(['mmpdb', 
-                     'fragment', 
-                     f'{smiles_file}',
-                     '-o',
-                     f'{fragment_file}',
-                     '--delimiter',
-                     'comma',
-                     '-j',
-                     f'{cpu_cores}' 
-                    ], stdout=PIPE, stderr=PIPE)
-    stdout, stderr = process.communicate()
+    command = ['mmpdb', 
+               'fragment', 
+               f'{smiles_file}',
+               '-o',
+               f'{fragment_file}',
+               '--delimiter',
+               'comma',
+               '-j',
+               f'{cpu_cores}' 
+              ]
     
-    return stdout, stderr
+    rc = run_and_log_process(command)
+    
+    return rc
+
 
 def run_mmpdb(assay_data):
-    fragment_file = os.path.join(config.temp_dir, "/smiles.fragment")
-    properties_file = os.path.join(config.temp_dir, "/properties.csv")
+    fragment_file = os.path.join(config.temp_dir, "smiles.fragment")
+    properties_file = os.path.join(config.temp_dir, "properties.csv")
     database_output = config.mmpdb_database
     cpu_cores = config.cpu_cores
     
@@ -47,18 +52,20 @@ def run_mmpdb(assay_data):
                                                      ).to_records())
     assay_pivot.rename(columns={'molregno':'ID'}, inplace=True)
     assay_pivot.to_csv(properties_file, sep='\t', index=False)
+    command = ['mmpdb', 
+               'index', 
+               f'{fragment_file}',
+               '--properties',
+               f'{properties_file}',
+               '-o',
+               f'{database_output}'
+              ]
     
-    process = Popen(['mmpdb', 
-                     'index', 
-                     f'{fragment_file}',
-                     '--properties',
-                     f'{properties_file}',
-                     '-o',
-                     f'{database_output}'
-                    ], stdout=PIPE, stderr=PIPE)
-    stdout, stderr = process.communicate()
+    rc = run_and_log_process(command)
     
-    return stdout, stderr
+    return rc
+
+
 
 def get_export_mmpkg_files(node_edge_list_dict=config.node_edge_list_dict):
     
