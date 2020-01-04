@@ -10,22 +10,20 @@ from mmp_kg.connectors.base_con import ChemDb
 
 class MmpSqlDb(ChemDb):
     def __init__(self):
-        self.db_path = config.mmpdb_database
         self.name = self.source_name()
 
     @staticmethod
     def source_name():
         return 'mmpdb'
 
-    def get_connection(self):
-        path_to_db = self.db_path
+    def get_connection(path_to_db):
         connection = sql.create_engine(f'sqlite:///{path_to_db}')
         return connection
 
-    def make_query(self, template: str, **kwargs):
+    def make_query(self, path_to_db, template: str, **kwargs):
         sql = query_template_dict[template](**kwargs)
     
-        conn = self.get_connection()
+        conn = self.get_connection(path_to_db)
         df = pd.read_sql_query(sql, conn)
 
         # Add details of query to the dataframe
