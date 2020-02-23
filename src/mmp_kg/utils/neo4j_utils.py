@@ -6,6 +6,7 @@ import logging
 
 import os
 import docker
+import shutil
 from mmp_kg import config
 from mmp_kg.utils.other_utils import run_and_log_process
     
@@ -24,7 +25,7 @@ def build_neo4j_image():
                       detach=True,
                       )
     
-def create_database_locally_dep(database_file, node_edge_list_dict, path_to_neo4j=None):
+def create_database_locally(database_file_name, node_edge_list_dict, path_to_neo4j=None):
     """
     node_edge_list_dict should be of the type e.g. [{'type':'nodes', 
                                                 'label':"Compound", 
@@ -35,40 +36,25 @@ def create_database_locally_dep(database_file, node_edge_list_dict, path_to_neo4
                                                  'file':"get_fragment_nodes.csv"}
                                                 ]
     """
-    database_file = os.path.join(config.temp_dir, database_file)
+    database_file = os.path.join(config.temp_dir, database_file_name)
     if path_to_neo4j == None:
         path_to_neo4j=config.path_to_neo4j
     else:
         path_to_neo4j
     """Using the depreciated neo4j import tool to create the graph.db file"""
-    neo4j_tool = os.path.join(path_to_neo4j, 'bin/neo4j-import')
+    neo4j_tool = os.path.join(path_to_neo4j, 'bin/neo4j-admin')
     process_list = [neo4j_tool, 
-                     'import', 
-                     '--into',
-                     database_file,
-                     '--id-type',
-                     'string']
+                     'import',
+                      '--database',
+                      database_file_name
+                   ]
     
     for ne in node_edge_list_dict:
             ne_type = ne['type']
-            ne_label = ne['label']
             ne_file = ne['name']
-            process_list.append(f'--{ne_type}:{ne_label}')
+            process_list.append(f'--{ne_type}')
             process_list.append(f'{config.temp_dir}/{ne_file}.csv')
-
+    print(process_list)
     rc = run_and_log_process(process_list)
-          
-    return rc
-    
-def create_database_locally(path_to_neo4j=config.path_to_neo4j):
-    """Using the new neo4j CLI tool to import and create the graph.db file"""
-    neo4j_tool = os.path.join(path_to_neo4j, 'bin/neo4j-admin')
-    process_list = [neo4j_tool, 
-                     'import', 
-                     '--nodes',
-                     ###TO FINISH
-                    ]
-    
-    rc = run_and_log_process(process_list)
-          
+    shutil.move(os.path.join(path_to_neo4j, 'data/databases/', database_file_name), database_file)
     return rc

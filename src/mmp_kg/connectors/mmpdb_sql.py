@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Holds all key chembl queries
+Holds all mmpdb queries
 """
 import logging
 import sqlalchemy as sql
@@ -16,7 +16,7 @@ class MmpSqlDb(ChemDb):
     def source_name():
         return 'mmpdb'
 
-    def get_connection(path_to_db):
+    def get_connection(self, path_to_db):
         connection = sql.create_engine(f'sqlite:///{path_to_db}')
         return connection
 

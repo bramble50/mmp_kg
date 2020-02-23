@@ -57,7 +57,12 @@ def get_adme_assays_for_docid(doc_id):
     return query
 
 def get_assay_compounds(assay_id_list):
-    assay_ids = tuple(assay_id_list)
+    if len(assay_id_list) > 1:
+        assay_ids = tuple(assay_id_list)
+        opperator = 'IN'
+    else:
+        assay_ids = assay_id_list[0]
+        opperator = '='
     ''' get all compounds for a list of assay ids'''
     query = f'''SELECT cs.molregno, cs.canonical_smiles, act.standard_relation, 
                act.standard_value, act.standard_units, act.standard_type, 
@@ -67,7 +72,7 @@ def get_assay_compounds(assay_id_list):
                FROM activities act
                JOIN compound_structures cs ON act.molregno = cs.molregno
                JOIN assays a ON a.assay_id = act.assay_id
-               WHERE act.assay_id IN {assay_ids}
+               WHERE act.assay_id {opperator} {assay_ids}
                '''
     return query
 

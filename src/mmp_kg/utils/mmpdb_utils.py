@@ -40,8 +40,9 @@ def run_smiles_fragment(assay_data):
 
 
 def run_mmpdb(assay_data, output_filename = None):
-    if output_filename = None:
+    if output_filename == None:
         database_output = os.path.join(config.temp_dir, "mmp_db.mmpdb")
+        print("using {0} as mmpdb output file".format(database_output))
     else:
         database_output = os.path.join(config.temp_dir, output_path)
     fragment_file = os.path.join(config.temp_dir, "smiles.fragment")
@@ -71,17 +72,25 @@ def run_mmpdb(assay_data, output_filename = None):
 
 
 
-def get_export_mmpkg_files(node_edge_list_dict=config.node_edge_list_dict, path_to_db = None):
-    if path_to_db = None:
+def get_export_mmpkg_files(path_to_db = None):
+    node_edge_list_dict=config.node_edge_list_dict
+    if path_to_db == None:
         try:
-            path_to_db = os.path.join(config.temp_dir, "mmp_db.mmpdb"
+            path_to_db = os.path.join(config.temp_dir, "mmp_db.mmpdb")
         except Exception:
             logging.exception("No mmp database can be found...")
                           
     mmpdb = get_dbase('mmpdb')
-    node_edge_list = [d['name'] for d in node_edge_list_dict]
     
-    for ne in node_edge_list:
+    for d in node_edge_list_dict:
+        ne=d['name']
+        label=d['label']
+        g_type=d['type']
         logging.info(f'getting {ne}...')
-        dataframe = mmpdb.make_query(template=ne, path_to_db)
+        dataframe = mmpdb.make_query(path_to_db, template=ne)   
+        dataframe.drop(columns=['query'],inplace=True)
+        if g_type == 'nodes':
+            dataframe[':LABEL']=label
+        elif g_type == 'relationships':
+            dataframe[':TYPE']=label
         dataframe.to_csv(f'{config.temp_dir}/{ne}.csv', index=False)
