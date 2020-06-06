@@ -22,7 +22,7 @@ from mmp_kg import __version__
 
 __author__ = "bramble50"
 __copyright__ = "bramble50"
-__license__ = "mit"
+__license__ = "GLPV3"
 
 _logger = logging.getLogger(__name__)
 
@@ -111,7 +111,7 @@ def parse_args(args):
     parser.add_argument(
         "--version",
         action="version",
-        version="MMP_KG {ver}".format(ver=__version__))
+        version="mmp_kg {ver}".format(ver=__version__))
     parser.add_argument(
         "--doc_id",
         dest="doc_id",
