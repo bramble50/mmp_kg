@@ -2,15 +2,28 @@
 MMP_KG
 ======
 
-
-Add a short description here!
+A package to create and analyse a matched molecular pair database in Neo4J
 
 
 Description
 ===========
 
-A longer description of your project goes here...
+MMP_KG contains functionality to create a Neo4J database of chemical matched molecular pair data using MMPDB.
 
+Requirements
+===========
+- Python >3.6
+- Neo4J >3.6.1
+- RDKit http://rdkit.org/ 
+- MMPDB https://github.com/rdkit/mmpdb
+- numpy
+- pandas
+
+See requirements.txt for more info
+
+Licence
+====
+This package is distributed under the GLPV3 licence. See https://github.com/bramble50/mmp_kg/blob/master/LICENSE.txt for more details.
 
 Note
 ====
