@@ -23,7 +23,7 @@ See requirements.txt for more info
 
 Licence
 ====
-This package is distributed under the GLPV3 licence. See LICENCE for more details.
+This package is distributed under the GLPV3 licence. See https://github.com/bramble50/mmp_kg/blob/master/LICENSE.txt for more details.
 
 Note
 ====
