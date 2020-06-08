@@ -174,6 +174,8 @@ def main(args):
     setup_logging(args.loglevel)
     _logger.debug("Creating graph database...")
     if args.skip_mmpdb == 'skip':
+        print("skipping creation of MMPDB")
+        print(args.graph_file, args.mmpdb_file)
         neo_info = create_graph_from_mmpdb(args.graph_file, args.mmpdb_file)
     else:
         neo_info = create_graph_from_chembl(args.doc_id, args.graph_file)
